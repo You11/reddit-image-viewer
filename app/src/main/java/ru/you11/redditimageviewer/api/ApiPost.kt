@@ -1,6 +1,6 @@
 package ru.you11.redditimageviewer.api
 
-import ru.you11.redditimageviewer.RedditPost
+import ru.you11.redditimageviewer.model.RedditPost
 
 class ApiPost {
 

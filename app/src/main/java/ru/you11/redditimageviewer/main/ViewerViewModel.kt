@@ -1,10 +1,11 @@
-package ru.you11.redditimageviewer
+package ru.you11.redditimageviewer.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import ru.you11.redditimageviewer.model.RedditPost
 
 class ViewerViewModel(private val viewerRepository: ViewerRepository = ViewerRepository()): ViewModel() {
 
