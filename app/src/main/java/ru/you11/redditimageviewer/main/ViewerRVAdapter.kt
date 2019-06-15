@@ -1,5 +1,6 @@
 package ru.you11.redditimageviewer.main
 
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

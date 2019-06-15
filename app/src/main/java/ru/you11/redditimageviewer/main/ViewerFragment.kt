@@ -4,10 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import ru.you11.redditimageviewer.R
@@ -42,7 +45,9 @@ class ViewerFragment : Fragment() {
 
     private fun loadUrls() {
         viewModel.getUrls().observe(this, Observer {
-            imagesRV.adapter = ViewerRVAdapter(ArrayList(it))
+            val adapter = ViewerRVAdapter(ArrayList(it.drop(1)))
+            imagesRV.adapter = adapter
+
         })
     }
 

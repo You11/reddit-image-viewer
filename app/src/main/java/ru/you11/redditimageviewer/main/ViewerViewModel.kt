@@ -9,7 +9,7 @@ import ru.you11.redditimageviewer.model.RedditPost
 
 class ViewerViewModel(private val viewerRepository: ViewerRepository = ViewerRepository()): ViewModel() {
 
-    val urls: MutableLiveData<List<String>> = MutableLiveData()
+    private val urls: MutableLiveData<List<String>> = MutableLiveData()
 
     fun getUrls(): LiveData<List<String>> {
         GlobalScope.launch {
@@ -22,7 +22,7 @@ class ViewerViewModel(private val viewerRepository: ViewerRepository = ViewerRep
 
     private fun getImageUrlsFromRedditPost(posts: List<RedditPost>): ArrayList<String> {
         val urls = ArrayList<String>()
-        posts.forEach { urls.add(it.title) }
+        posts.forEach { urls.add(it.url) }
         return urls
     }
 }
