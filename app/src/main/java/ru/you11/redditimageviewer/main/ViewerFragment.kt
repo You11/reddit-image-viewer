@@ -45,7 +45,7 @@ class ViewerFragment : Fragment() {
 
     private fun loadUrls() {
         viewModel.getUrls().observe(this, Observer {
-            val adapter = ViewerRVAdapter(ArrayList(it.drop(1)))
+            val adapter = ViewerRVAdapter(ArrayList(it))
             imagesRV.adapter = adapter
 
         })

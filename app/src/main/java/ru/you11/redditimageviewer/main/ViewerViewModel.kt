@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.you11.redditimageviewer.model.RedditPost
+import ru.you11.redditimageviewer.other.ImageDetector
 
 class ViewerViewModel(private val viewerRepository: ViewerRepository = ViewerRepository()): ViewModel() {
 
@@ -22,7 +23,10 @@ class ViewerViewModel(private val viewerRepository: ViewerRepository = ViewerRep
 
     private fun getImageUrlsFromRedditPost(posts: List<RedditPost>): ArrayList<String> {
         val urls = ArrayList<String>()
-        posts.forEach { urls.add(it.url) }
+        val imageDetector = ImageDetector()
+        posts.forEach {
+            if (imageDetector.isUrlContainsImageExtensions(it.url)) urls.add(it.url)
+        }
         return urls
     }
 }

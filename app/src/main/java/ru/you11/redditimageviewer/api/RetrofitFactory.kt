@@ -4,18 +4,18 @@ import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import ru.you11.redditimageviewer.other.Consts
 import java.util.concurrent.TimeUnit
 
 class RetrofitFactory {
 
-    private val timeoutTimeInSeconds = 10L
     private val redditBaseUrl = "https://api.reddit.com/r/"
 
     fun create(): Retrofit {
 
         val httpClient = OkHttpClient.Builder()
-            .connectTimeout(timeoutTimeInSeconds, TimeUnit.SECONDS)
-            .readTimeout(timeoutTimeInSeconds, TimeUnit.SECONDS)
+            .connectTimeout(Consts.timeoutLength, TimeUnit.SECONDS)
+            .readTimeout(Consts.timeoutLength, TimeUnit.SECONDS)
             .build()
 
         return Retrofit.Builder()
