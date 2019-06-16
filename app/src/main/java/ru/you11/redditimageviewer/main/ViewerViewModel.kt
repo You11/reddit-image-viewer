@@ -10,11 +10,11 @@ import ru.you11.redditimageviewer.other.ImageDetector
 
 class ViewerViewModel(private val viewerRepository: ViewerRepository = ViewerRepository()): ViewModel() {
 
-    private val urls: MutableLiveData<List<String>> = MutableLiveData()
+    val urls: MutableLiveData<List<String>> = MutableLiveData()
 
-    fun getUrls(): LiveData<List<String>> {
+    fun getUrls(subreddit: String): LiveData<List<String>> {
         GlobalScope.launch {
-            val list = viewerRepository.getPosts()
+            val list = viewerRepository.getPosts(subreddit)
             urls.postValue(getImageUrlsFromRedditPost(list))
         }
 

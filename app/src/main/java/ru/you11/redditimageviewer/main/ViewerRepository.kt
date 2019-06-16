@@ -11,8 +11,8 @@ class ViewerRepository {
     private val retrofit = RetrofitFactory().create()
     private val apiService = ApiService(retrofit.create(IApiMethods::class.java))
 
-    fun getPosts(): List<RedditPost> {
-        val posts = apiService.getPosts("pics")
+    fun getPosts(subreddit: String): List<RedditPost> {
+        val posts = apiService.getPosts(subreddit)
         return ApiPost.convertToPostList(posts)
     }
 

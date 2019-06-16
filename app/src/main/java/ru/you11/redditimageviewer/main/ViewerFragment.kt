@@ -1,16 +1,11 @@
 package ru.you11.redditimageviewer.main
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import ru.you11.redditimageviewer.R
@@ -23,6 +18,7 @@ class ViewerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = createViewModel()
     }
 
@@ -33,6 +29,8 @@ class ViewerFragment : Fragment() {
             imagesRV = findViewById(R.id.images_rv)
             val numberOfColumns = 2
             imagesRV.layoutManager = StaggeredGridLayoutManager(numberOfColumns, RecyclerView.VERTICAL)
+            val adapter = ViewerRVAdapter(ArrayList())
+            imagesRV.adapter = adapter
         }
 
         return root
@@ -40,14 +38,30 @@ class ViewerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        loadUrls()
+        loadUrlsIntoRV()
     }
 
-    private fun loadUrls() {
-        viewModel.getUrls().observe(this, Observer {
-            val adapter = ViewerRVAdapter(ArrayList(it))
-            imagesRV.adapter = adapter
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.menu_viewer, menu)
 
+        val item = menu?.findItem(R.id.viewer_search)
+        val view = item?.actionView as SearchView
+
+        view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(p0: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextSubmit(subreddit: String?): Boolean {
+                viewModel.getUrls(subreddit ?: "")
+                return true
+            }
+        })
+    }
+
+    private fun loadUrlsIntoRV() {
+        viewModel.getUrls("pics").observe(this, Observer {
+            (imagesRV.adapter as ViewerRVAdapter).updateData(ArrayList(it))
         })
     }
 
