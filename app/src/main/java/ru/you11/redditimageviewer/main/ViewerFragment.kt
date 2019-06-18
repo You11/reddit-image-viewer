@@ -38,6 +38,7 @@ class ViewerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        setupDataObservers()
         loadUrlsIntoRV()
     }
 
@@ -59,13 +60,32 @@ class ViewerFragment : Fragment() {
         })
     }
 
-    private fun loadUrlsIntoRV() {
-        viewModel.getUrls("pics").observe(this, Observer {
+    private fun setupDataObservers() {
+        setupUrlsObserver()
+        setupCurrentSubredditObserver()
+    }
+
+    private fun setupUrlsObserver() {
+        viewModel.urls.observe(this, Observer {
             (imagesRV.adapter as ViewerRVAdapter).updateData(ArrayList(it))
         })
     }
 
+    private fun setupCurrentSubredditObserver() {
+        viewModel.currentSubreddit.observe(this, Observer {
+            changeTitle(it)
+        })
+    }
+
+    private fun loadUrlsIntoRV() {
+        viewModel.getUrls("pics")
+    }
+
     private fun createViewModel(): ViewerViewModel {
         return ViewModelProviders.of(this).get(ViewerViewModel::class.java)
+    }
+
+    private fun changeTitle(title: String) {
+        activity?.title = "r/$title"
     }
 }
