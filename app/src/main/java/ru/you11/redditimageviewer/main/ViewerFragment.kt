@@ -6,9 +6,12 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import ru.you11.redditimageviewer.R
+import java.util.concurrent.Executors
 
 class ViewerFragment : Fragment() {
 
@@ -29,8 +32,16 @@ class ViewerFragment : Fragment() {
             imagesRV = findViewById(R.id.images_rv)
             val numberOfColumns = 2
             imagesRV.layoutManager = StaggeredGridLayoutManager(numberOfColumns, RecyclerView.VERTICAL)
-            val adapter = ViewerRVAdapter(ArrayList())
+
+            val config = PagedList.Config.Builder().setInitialLoadSizeHint(20).setPageSize(50).setEnablePlaceholders(true).build()
+
+            val adapter = ViewerRVAdapter()
             imagesRV.adapter = adapter
+
+            val pagedList = LivePagedListBuilder(ViewerDataSourceFactory("pics"), config).setFetchExecutor(Executors.newFixedThreadPool(5)).build()
+            pagedList.observe(this@ViewerFragment, Observer {
+                adapter.submitList(it)
+            })
         }
 
         return root
@@ -54,22 +65,23 @@ class ViewerFragment : Fragment() {
             }
 
             override fun onQueryTextSubmit(subreddit: String?): Boolean {
-                viewModel.getUrls(subreddit ?: "")
+                if (subreddit.isNullOrBlank()) return false
+//                viewModel.getInitialUrls(subreddit)
                 return true
             }
         })
     }
 
     private fun setupDataObservers() {
-        setupUrlsObserver()
+//        setupUrlsObserver()
         setupCurrentSubredditObserver()
     }
 
-    private fun setupUrlsObserver() {
-        viewModel.urls.observe(this, Observer {
-            (imagesRV.adapter as ViewerRVAdapter).updateData(ArrayList(it))
-        })
-    }
+//    private fun setupUrlsObserver() {
+//        viewModel.posts.observe(this, Observer {
+//            (imagesRV.adapter as ViewerRVAdapter).submitList(it)
+//        })
+//    }
 
     private fun setupCurrentSubredditObserver() {
         viewModel.currentSubreddit.observe(this, Observer {
@@ -78,7 +90,7 @@ class ViewerFragment : Fragment() {
     }
 
     private fun loadUrlsIntoRV() {
-        viewModel.getUrls("pics")
+//        viewModel.getInitialUrls("pics")
     }
 
     private fun createViewModel(): ViewerViewModel {

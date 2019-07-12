@@ -4,8 +4,14 @@ import retrofit2.Call
 
 class ApiService(private val apiMethods: IApiMethods): IApiService {
 
-    override fun getPosts(subreddit: String): ApiPost {
-        return getApiResponse(apiMethods.getPosts(subreddit))
+    private val limit = 50
+
+    override fun getInitialPosts(subreddit: String): ApiPost {
+        return getApiResponse(apiMethods.getPosts(subreddit, limit))
+    }
+
+    override fun getAfterPosts(subreddit: String, after: String): ApiPost {
+        return getApiResponse(apiMethods.getTopAfter(subreddit, after, limit))
     }
 
     private fun <T> getApiResponse(call: Call<T>): T {

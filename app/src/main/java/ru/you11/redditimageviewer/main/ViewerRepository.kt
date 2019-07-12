@@ -12,8 +12,12 @@ class ViewerRepository {
     private val apiService = ApiService(retrofit.create(IApiMethods::class.java))
 
     fun getPosts(subreddit: String): List<RedditPost> {
-        val posts = apiService.getPosts(subreddit)
+        val posts = apiService.getInitialPosts(subreddit)
         return ApiPost.convertToPostList(posts)
     }
 
+    fun getAfterPosts(subreddit: String, after: String): List<RedditPost> {
+        val posts = apiService.getAfterPosts(subreddit, after)
+        return ApiPost.convertToPostList(posts)
+    }
 }

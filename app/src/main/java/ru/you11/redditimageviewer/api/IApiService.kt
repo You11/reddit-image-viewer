@@ -2,6 +2,7 @@ package ru.you11.redditimageviewer.api
 
 interface IApiService {
 
-    fun getPosts(subreddit: String): ApiPost
+    fun getInitialPosts(subreddit: String): ApiPost
 
+    fun getAfterPosts(subreddit: String, after: String): ApiPost
 }

@@ -5,11 +5,12 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.you11.redditimageviewer.R
+import ru.you11.redditimageviewer.model.RedditPost
 
 class ViewerRVViewHolder(private val layout: View) : RecyclerView.ViewHolder(layout) {
 
-    fun bind(url: String) {
+    fun bind(post: RedditPost) {
         val imageView = layout.findViewById<ImageView>(R.id.images_rv_image)
-        Glide.with(layout).load(url).placeholder(R.drawable.default_placeholder).into(imageView)
+        Glide.with(layout).load(post.url).placeholder(R.drawable.default_placeholder).into(imageView)
     }
 }

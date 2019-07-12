@@ -16,6 +16,7 @@ class ApiPost {
 
             class Data {
 
+                val name: String? = null
                 val url: String? = null
             }
         }
@@ -28,7 +29,7 @@ class ApiPost {
         }
 
         private fun convertToPost(apiPost: Data.Children): RedditPost {
-            return RedditPost(apiPost.data?.url ?: "")
+            return RedditPost(apiPost.data?.name ?: "", apiPost.data?.url ?: "")
         }
     }
 }
