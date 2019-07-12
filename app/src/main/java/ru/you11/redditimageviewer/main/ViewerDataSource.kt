@@ -12,8 +12,9 @@ import ru.you11.redditimageviewer.api.ApiService
 import ru.you11.redditimageviewer.api.IApiMethods
 import ru.you11.redditimageviewer.api.RetrofitFactory
 import ru.you11.redditimageviewer.model.RedditPost
+import ru.you11.redditimageviewer.other.ImageDetector
 
-class ViewerDataSource(private var subreddit: String) : ItemKeyedDataSource<String, RedditPost>() {
+class ViewerDataSource(private val subreddit: String) : ItemKeyedDataSource<String, RedditPost>() {
 
     private val retrofit = RetrofitFactory().create()
     private val apiService = ApiService(retrofit.create(IApiMethods::class.java))
@@ -22,19 +23,24 @@ class ViewerDataSource(private var subreddit: String) : ItemKeyedDataSource<Stri
 
     override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<RedditPost>) {
         val data = ApiPost.convertToPostList(apiService.getInitialPosts(subreddit))
-        callback.onResult(data)
+        callback.onResult(getImagePostsFromAllPosts(data))
     }
 
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<RedditPost>) {
         val data = ApiPost.convertToPostList(apiService.getAfterPosts(subreddit, params.key))
-        callback.onResult(data)
+        callback.onResult(getImagePostsFromAllPosts(data))
     }
 
     override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<RedditPost>) {
 
     }
 
-    fun changeSubreddit(newSubreddit: String) {
-        subreddit = newSubreddit
+    private fun getImagePostsFromAllPosts(posts: List<RedditPost>): ArrayList<RedditPost> {
+        val imagePosts = ArrayList<RedditPost>()
+        val imageDetector = ImageDetector()
+        posts.forEach {
+            if (imageDetector.isUrlContainsImageExtensions(it.url)) imagePosts.add(it)
+        }
+        return imagePosts
     }
 }
