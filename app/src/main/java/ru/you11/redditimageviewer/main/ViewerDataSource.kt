@@ -13,7 +13,7 @@ import ru.you11.redditimageviewer.api.IApiMethods
 import ru.you11.redditimageviewer.api.RetrofitFactory
 import ru.you11.redditimageviewer.model.RedditPost
 
-class ViewerDataSource(private val subreddit: String) : ItemKeyedDataSource<String, RedditPost>() {
+class ViewerDataSource(private var subreddit: String) : ItemKeyedDataSource<String, RedditPost>() {
 
     private val retrofit = RetrofitFactory().create()
     private val apiService = ApiService(retrofit.create(IApiMethods::class.java))
@@ -32,5 +32,9 @@ class ViewerDataSource(private val subreddit: String) : ItemKeyedDataSource<Stri
 
     override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<RedditPost>) {
 
+    }
+
+    fun changeSubreddit(newSubreddit: String) {
+        subreddit = newSubreddit
     }
 }
