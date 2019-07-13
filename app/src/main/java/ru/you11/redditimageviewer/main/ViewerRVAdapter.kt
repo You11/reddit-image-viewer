@@ -1,16 +1,16 @@
 package ru.you11.redditimageviewer.main
 
-import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
+import com.github.piasy.biv.view.BigImageView
 import ru.you11.redditimageviewer.R
 import ru.you11.redditimageviewer.model.RedditPost
 
-class ViewerRVAdapter : PagedListAdapter<RedditPost, ViewerRVViewHolder>(POST_COMPARATOR) {
+class ViewerRVAdapter(private val listener: OnImageClickListener) :
+    PagedListAdapter<RedditPost, ViewerRVViewHolder>(POST_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewerRVViewHolder {
         return ViewerRVViewHolder(
@@ -18,7 +18,8 @@ class ViewerRVAdapter : PagedListAdapter<RedditPost, ViewerRVViewHolder>(POST_CO
                 R.layout.rv_image_item,
                 parent,
                 false
-            ) as View
+            ) as View,
+            listener
         )
     }
 

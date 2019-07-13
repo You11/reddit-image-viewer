@@ -1,5 +1,7 @@
 package ru.you11.redditimageviewer.main
 
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
@@ -10,14 +12,18 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.github.piasy.biv.view.BigImageView
 import ru.you11.redditimageviewer.R
 import java.util.concurrent.Executors
 
-class ViewerFragment : Fragment() {
+class ViewerFragment : Fragment(), OnImageClickListener {
 
     private lateinit var viewModel: ViewerViewModel
 
     private lateinit var imagesRV: RecyclerView
+    private lateinit var bigImageView: BigImageView
+    private lateinit var searchButton: MenuItem
+    private lateinit var closeButton: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,11 +35,13 @@ class ViewerFragment : Fragment() {
 
         val root = inflater.inflate(R.layout.fragment_main, container, false)
         with(root) {
+            bigImageView = findViewById(R.id.images_big)
+
             imagesRV = findViewById(R.id.images_rv)
             val numberOfColumns = 2
             imagesRV.layoutManager = StaggeredGridLayoutManager(numberOfColumns, RecyclerView.VERTICAL)
 
-            val adapter = ViewerRVAdapter()
+            val adapter = ViewerRVAdapter(this@ViewerFragment)
             imagesRV.adapter = adapter
 
             setPagedListAndTitle("pics")
@@ -66,26 +74,21 @@ class ViewerFragment : Fragment() {
         setupDataObservers()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.menu_viewer, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_viewer, menu)
 
-        val item = menu?.findItem(R.id.viewer_search)
-        val view = item?.actionView as SearchView
+        setupSearchButton(menu)
+
+        setupCloseButton(menu)
+    }
+
+    private fun setupSearchButton(menu: Menu) {
+        searchButton = menu.findItem(R.id.viewer_search)
+        val view = searchButton.actionView as SearchView
 
         view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(query: String?): Boolean {
-
                 return true
-
-//                if (query.isNullOrEmpty()) return true
-//
-//                return if (query.matches(Regex("[a-zA-Z0-9]*"))) {
-//                    true
-//                } else {
-//                    val newString = query.replace(Regex("[^a-zA-Z0-9]*"), "")
-//                    view.setQuery(newString, false)
-//                    false
-//                }
             }
 
             override fun onQueryTextSubmit(subreddit: String?): Boolean {
@@ -94,6 +97,16 @@ class ViewerFragment : Fragment() {
                 return true
             }
         })
+    }
+
+    private fun setupCloseButton(menu: Menu) {
+        closeButton = menu.findItem(R.id.viewer_close)
+        closeButton.setOnMenuItemClickListener {
+            changeMenuButtonsVisibility(isImageOpen = false)
+            bigImageView.removeAllViews()
+            bigImageView.setBackgroundColor(Color.TRANSPARENT)
+            return@setOnMenuItemClickListener true
+        }
     }
 
     private fun filterSubredditNameFromInvalidInput(subreddit: String): String =
@@ -115,5 +128,16 @@ class ViewerFragment : Fragment() {
 
     private fun changeTitle(title: String) {
         activity?.title = "r/$title"
+    }
+
+    override fun onImageClick(url: String) {
+        changeMenuButtonsVisibility(isImageOpen = true)
+        bigImageView.showImage(Uri.parse(url))
+        bigImageView.setBackgroundColor(Color.BLACK)
+    }
+
+    private fun changeMenuButtonsVisibility(isImageOpen: Boolean) {
+        searchButton.isVisible = !isImageOpen
+        closeButton.isVisible = isImageOpen
     }
 }
