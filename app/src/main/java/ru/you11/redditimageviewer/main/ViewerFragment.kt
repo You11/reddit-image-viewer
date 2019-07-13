@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.paging.LivePagedListBuilder
@@ -12,7 +11,6 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import ru.you11.redditimageviewer.R
-import ru.you11.redditimageviewer.model.RedditPost
 import java.util.concurrent.Executors
 
 class ViewerFragment : Fragment() {
@@ -38,13 +36,16 @@ class ViewerFragment : Fragment() {
             val adapter = ViewerRVAdapter()
             imagesRV.adapter = adapter
 
-            updateAdapter("pics")
+            setPagedListAndTitle("pics")
         }
 
         return root
     }
 
-    private fun updateAdapter(subreddit: String) {
+    private fun setPagedListAndTitle(subreddit: String) {
+
+        viewModel.updateSubreddit(subreddit)
+
         val config = PagedList.Config.Builder()
             .setInitialLoadSizeHint(20)
             .setPageSize(50)
@@ -72,17 +73,31 @@ class ViewerFragment : Fragment() {
         val view = item?.actionView as SearchView
 
         view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(p0: String?): Boolean {
+            override fun onQueryTextChange(query: String?): Boolean {
+
                 return true
+
+//                if (query.isNullOrEmpty()) return true
+//
+//                return if (query.matches(Regex("[a-zA-Z0-9]*"))) {
+//                    true
+//                } else {
+//                    val newString = query.replace(Regex("[^a-zA-Z0-9]*"), "")
+//                    view.setQuery(newString, false)
+//                    false
+//                }
             }
 
             override fun onQueryTextSubmit(subreddit: String?): Boolean {
                 if (subreddit.isNullOrBlank()) return false
-                updateAdapter(subreddit)
+                setPagedListAndTitle(filterSubredditNameFromInvalidInput(subreddit))
                 return true
             }
         })
     }
+
+    private fun filterSubredditNameFromInvalidInput(subreddit: String): String =
+        subreddit.replace(Regex("[^a-zA-Z0-9]*"), "")
 
     private fun setupDataObservers() {
         setupCurrentSubredditObserver()

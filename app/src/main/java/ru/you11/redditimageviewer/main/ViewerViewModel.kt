@@ -12,4 +12,8 @@ import ru.you11.redditimageviewer.other.ImageDetector
 class ViewerViewModel: ViewModel() {
 
     val currentSubreddit: MutableLiveData<String> = MutableLiveData()
+
+    fun updateSubreddit(subreddit: String) {
+        currentSubreddit.postValue(subreddit)
+    }
 }
