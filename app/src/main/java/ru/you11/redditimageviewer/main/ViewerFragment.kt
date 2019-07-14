@@ -13,6 +13,7 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.github.piasy.biv.view.BigImageView
+import com.github.piasy.biv.view.GlideImageViewFactory
 import ru.you11.redditimageviewer.R
 import java.util.concurrent.Executors
 
@@ -36,6 +37,7 @@ class ViewerFragment : Fragment(), OnImageClickListener {
         val root = inflater.inflate(R.layout.fragment_main, container, false)
         with(root) {
             bigImageView = findViewById(R.id.images_big)
+            bigImageView.setImageViewFactory(GlideImageViewFactory())
 
             imagesRV = findViewById(R.id.images_rv)
             val numberOfColumns = 2
