@@ -4,4 +4,6 @@
     <string name="menu_close_title">Close</string>
     <string name="menu_search_title">Search</string>
     <string name="menu_search_hint">Subreddit name</string>
+
+    <string name="error_message_template">Error: %1$s</string>
 </resources>

@@ -13,7 +13,13 @@ class ViewerViewModel: ViewModel() {
 
     val currentSubreddit: MutableLiveData<String> = MutableLiveData()
 
+    val error: MutableLiveData<String> = MutableLiveData()
+
     fun updateSubreddit(subreddit: String) {
         currentSubreddit.postValue(subreddit)
+    }
+
+    fun updateError(error: String) {
+        this.error.postValue(error)
     }
 }

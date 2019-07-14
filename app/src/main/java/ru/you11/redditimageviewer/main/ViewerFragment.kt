@@ -4,8 +4,8 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -63,7 +63,7 @@ class ViewerFragment : Fragment(), OnImageClickListener {
             .setEnablePlaceholders(true)
             .build()
 
-        val pagedListBuilder = LivePagedListBuilder(ViewerDataSourceFactory(subreddit), config)
+        val pagedListBuilder = LivePagedListBuilder(ViewerDataSourceFactory(subreddit, viewModel), config)
             .setFetchExecutor(Executors.newFixedThreadPool(5))
             .build()
 
@@ -75,13 +75,16 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     override fun onResume() {
         super.onResume()
         setupDataObservers()
+
+        viewModel.error.observe(this, Observer {
+            onError(it)
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_viewer, menu)
 
         setupSearchButton(menu)
-
         setupCloseButton(menu)
     }
 
@@ -143,5 +146,10 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     private fun changeMenuButtonsVisibility(isImageOpen: Boolean) {
         searchButton.isVisible = !isImageOpen
         closeButton.isVisible = isImageOpen
+    }
+
+    private fun onError(message: String) {
+        Toast.makeText(activity, resources.getString(R.string.error_message_template, message), Toast.LENGTH_SHORT)
+            .show()
     }
 }
