@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -112,7 +113,7 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     }
 
     private fun filterSubredditNameFromInvalidInput(subreddit: String): String =
-        subreddit.replace(Regex("[^a-zA-Z0-9]*"), "")
+        subreddit.replace(Regex("[^a-zA-Z0-9_]*"), "")
 
     private fun setupDataObservers() {
         setupCurrentSubredditObserver()
@@ -136,6 +137,7 @@ class ViewerFragment : Fragment(), OnImageClickListener {
         changeMenuButtonsVisibility(isImageOpen = true)
         bigImageView.showImage(Uri.parse(url))
         bigImageView.setBackgroundColor(Color.BLACK)
+        if (searchButton.isActionViewExpanded) searchButton.collapseActionView()
     }
 
     private fun changeMenuButtonsVisibility(isImageOpen: Boolean) {
