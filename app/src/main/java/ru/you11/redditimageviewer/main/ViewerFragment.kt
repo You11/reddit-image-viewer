@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.github.piasy.biv.view.BigImageView
 import com.github.piasy.biv.view.GlideImageViewFactory
 import ru.you11.redditimageviewer.R
+import ru.you11.redditimageviewer.other.Consts
 import java.util.concurrent.Executors
 
 class ViewerFragment : Fragment(), OnImageClickListener {
@@ -23,7 +24,9 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     private lateinit var viewModel: ViewerViewModel
 
     private lateinit var imagesRV: RecyclerView
+    private lateinit var emptyView: View
     private lateinit var bigImageView: BigImageView
+
     private lateinit var searchButton: MenuItem
     private lateinit var closeButton: MenuItem
 
@@ -40,6 +43,8 @@ class ViewerFragment : Fragment(), OnImageClickListener {
             bigImageView = findViewById(R.id.images_big)
             bigImageView.setImageViewFactory(GlideImageViewFactory())
 
+            emptyView = findViewById(R.id.images_empty)
+
             imagesRV = findViewById(R.id.images_rv)
             val numberOfColumns = 2
             imagesRV.layoutManager = StaggeredGridLayoutManager(numberOfColumns, RecyclerView.VERTICAL)
@@ -47,7 +52,7 @@ class ViewerFragment : Fragment(), OnImageClickListener {
             val adapter = ViewerRVAdapter(this@ViewerFragment)
             imagesRV.adapter = adapter
 
-            setPagedListAndTitle("pics")
+            setPagedListAndTitle(Consts.startingSubreddit)
         }
 
         return root
@@ -68,16 +73,28 @@ class ViewerFragment : Fragment(), OnImageClickListener {
             .build()
 
         pagedListBuilder.observe(this@ViewerFragment, Observer {
+            if (it.isEmpty())
+                showEmptyRV()
+            else
+                showLoadedRV()
             (imagesRV.adapter as ViewerRVAdapter).submitList(it)
         })
     }
 
     override fun onResume() {
         super.onResume()
-        setupDataObservers()
+        setupCurrentSubredditObserver()
 
         viewModel.error.observe(this, Observer {
             onError(it)
+        })
+
+        viewModel.loadingStatus.observe(this, Observer {
+            when (it) {
+                LoadingStatus.LOADING -> showLoading()
+                LoadingStatus.EMPTY -> showEmptyRV()
+                LoadingStatus.LOADED -> showLoadedRV()
+            }
         })
     }
 
@@ -118,10 +135,6 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     private fun filterSubredditNameFromInvalidInput(subreddit: String): String =
         subreddit.replace(Regex("[^a-zA-Z0-9_]*"), "")
 
-    private fun setupDataObservers() {
-        setupCurrentSubredditObserver()
-    }
-
     private fun setupCurrentSubredditObserver() {
         viewModel.currentSubreddit.observe(this, Observer {
             changeTitle(it)
@@ -151,5 +164,19 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     private fun onError(message: String) {
         Toast.makeText(activity, resources.getString(R.string.error_message_template, message), Toast.LENGTH_SHORT)
             .show()
+    }
+
+    private fun showLoading() {
+
+    }
+
+    private fun showEmptyRV() {
+        imagesRV.visibility = View.GONE
+        emptyView.visibility = View.VISIBLE
+    }
+
+    private fun showLoadedRV() {
+        emptyView.visibility = View.GONE
+        imagesRV.visibility = View.VISIBLE
     }
 }

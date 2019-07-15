@@ -12,8 +12,8 @@ import ru.you11.redditimageviewer.other.ImageDetector
 class ViewerViewModel: ViewModel() {
 
     val currentSubreddit: MutableLiveData<String> = MutableLiveData()
-
     val error: MutableLiveData<String> = MutableLiveData()
+    val loadingStatus: MutableLiveData<LoadingStatus> = MutableLiveData(LoadingStatus.LOADING)
 
     fun updateSubreddit(subreddit: String) {
         currentSubreddit.postValue(subreddit)
@@ -21,5 +21,9 @@ class ViewerViewModel: ViewModel() {
 
     fun updateError(error: String) {
         this.error.postValue(error)
+    }
+
+    fun changeLoadingStatus(status: LoadingStatus) {
+        loadingStatus.postValue(status)
     }
 }

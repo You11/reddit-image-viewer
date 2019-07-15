@@ -6,4 +6,5 @@
     <string name="menu_search_hint">Subreddit name</string>
 
     <string name="error_message_template">Error: %1$s</string>
+    <string name="empty_rv">Изображения не найдены</string>
 </resources>
