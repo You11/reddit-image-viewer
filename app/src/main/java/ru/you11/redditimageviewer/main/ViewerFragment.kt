@@ -13,6 +13,7 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.piasy.biv.view.BigImageView
 import com.github.piasy.biv.view.GlideImageViewFactory
 import ru.you11.redditimageviewer.R
@@ -26,6 +27,7 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     private lateinit var imagesRV: RecyclerView
     private lateinit var emptyView: View
     private lateinit var bigImageView: BigImageView
+    private lateinit var swipeToRefresh: SwipeRefreshLayout
 
     private lateinit var searchButton: MenuItem
     private lateinit var closeButton: MenuItem
@@ -53,6 +55,12 @@ class ViewerFragment : Fragment(), OnImageClickListener {
             imagesRV.adapter = adapter
 
             setPagedListAndTitle(Consts.startingSubreddit)
+
+            swipeToRefresh = findViewById(R.id.viewer_swipe_refresh_layout)
+            swipeToRefresh.setOnRefreshListener {
+                setPagedListAndTitle(viewModel.currentSubreddit.value ?: "pics")
+            }
+
         }
 
         return root
@@ -60,6 +68,7 @@ class ViewerFragment : Fragment(), OnImageClickListener {
 
     private fun setPagedListAndTitle(subreddit: String) {
 
+        viewModel.changeLoadingStatus(LoadingStatus.LOADING)
         viewModel.updateSubreddit(subreddit)
 
         val config = PagedList.Config.Builder()
@@ -167,16 +176,18 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     }
 
     private fun showLoading() {
-
+        swipeToRefresh.isRefreshing = true
     }
 
     private fun showEmptyRV() {
         imagesRV.visibility = View.GONE
         emptyView.visibility = View.VISIBLE
+        swipeToRefresh.isRefreshing = false
     }
 
     private fun showLoadedRV() {
         emptyView.visibility = View.GONE
         imagesRV.visibility = View.VISIBLE
+        swipeToRefresh.isRefreshing = false
     }
 }
