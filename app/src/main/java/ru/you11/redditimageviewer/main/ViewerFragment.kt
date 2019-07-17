@@ -83,9 +83,9 @@ class ViewerFragment : Fragment(), OnImageClickListener {
 
         pagedListBuilder.observe(this@ViewerFragment, Observer {
             if (it.isEmpty())
-                showEmptyRV()
+                viewModel.changeLoadingStatus(LoadingStatus.EMPTY)
             else
-                showLoadedRV()
+                viewModel.changeLoadingStatus(LoadingStatus.LOADED)
             (imagesRV.adapter as ViewerRVAdapter).submitList(it)
         })
     }
@@ -124,7 +124,7 @@ class ViewerFragment : Fragment(), OnImageClickListener {
             }
 
             override fun onQueryTextSubmit(subreddit: String?): Boolean {
-                if (subreddit.isNullOrBlank()) return false
+                if (subreddit.isNullOrBlank() || viewModel.loadingStatus.value == LoadingStatus.LOADING) return false
                 setPagedListAndTitle(filterSubredditNameFromInvalidInput(subreddit))
                 return true
             }
