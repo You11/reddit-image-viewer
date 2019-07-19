@@ -16,8 +16,4 @@ class AppResult<T> {
     val isSuccess get() = mError == null
     val data get() = mData!!
     val error get() = mError ?: ""
-
-    fun getResult(): String {
-        return if (isSuccess) "Ok" else "ERROR: $mError"
-    }
 }

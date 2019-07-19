@@ -40,6 +40,8 @@ class ViewerFragment : Fragment(), OnImageClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
+        val startingSubreddit = Consts.startingSubreddit
+
         val root = inflater.inflate(R.layout.fragment_main, container, false)
         with(root) {
             bigImageView = findViewById(R.id.images_big)
@@ -54,13 +56,12 @@ class ViewerFragment : Fragment(), OnImageClickListener {
             val adapter = ViewerRVAdapter(this@ViewerFragment)
             imagesRV.adapter = adapter
 
-            setPagedListAndTitle(Consts.startingSubreddit)
+            setPagedListAndTitle(startingSubreddit)
 
             swipeToRefresh = findViewById(R.id.viewer_swipe_refresh_layout)
             swipeToRefresh.setOnRefreshListener {
-                setPagedListAndTitle(viewModel.currentSubreddit.value ?: "pics")
+                setPagedListAndTitle(viewModel.currentSubreddit.value ?: startingSubreddit)
             }
-
         }
 
         return root
@@ -82,10 +83,13 @@ class ViewerFragment : Fragment(), OnImageClickListener {
             .build()
 
         pagedListBuilder.observe(this@ViewerFragment, Observer {
-            if (it.isEmpty())
-                viewModel.changeLoadingStatus(LoadingStatus.EMPTY)
+
+            val loadingStatus = if (it.isEmpty())
+                LoadingStatus.EMPTY
             else
-                viewModel.changeLoadingStatus(LoadingStatus.LOADED)
+                LoadingStatus.LOADED
+
+            viewModel.changeLoadingStatus(loadingStatus)
             (imagesRV.adapter as ViewerRVAdapter).submitList(it)
         })
     }
@@ -93,11 +97,18 @@ class ViewerFragment : Fragment(), OnImageClickListener {
     override fun onResume() {
         super.onResume()
         setupCurrentSubredditObserver()
+        setupErrorObserver()
+        setupLoadingStatusObserver()
+    }
 
-        viewModel.error.observe(this, Observer {
-            onError(it)
-        })
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_viewer, menu)
 
+        setupSearchButton(menu)
+        setupCloseButton(menu)
+    }
+
+    private fun setupLoadingStatusObserver() {
         viewModel.loadingStatus.observe(this, Observer {
             when (it) {
                 LoadingStatus.LOADING -> showLoading()
@@ -107,11 +118,24 @@ class ViewerFragment : Fragment(), OnImageClickListener {
         })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_viewer, menu)
+    private fun setupErrorObserver() {
+        viewModel.error.observe(this, Observer {
+            onError(it)
+        })
+    }
 
-        setupSearchButton(menu)
-        setupCloseButton(menu)
+    private fun setupCloseButton(menu: Menu) {
+        closeButton = menu.findItem(R.id.viewer_close)
+        closeButton.setOnMenuItemClickListener {
+            changeMenuButtonsVisibility(isImageOpen = false)
+            closeImageView()
+            return@setOnMenuItemClickListener true
+        }
+    }
+
+    private fun closeImageView() {
+        bigImageView.removeAllViews()
+        bigImageView.setBackgroundColor(Color.TRANSPARENT)
     }
 
     private fun setupSearchButton(menu: Menu) {
@@ -129,16 +153,6 @@ class ViewerFragment : Fragment(), OnImageClickListener {
                 return true
             }
         })
-    }
-
-    private fun setupCloseButton(menu: Menu) {
-        closeButton = menu.findItem(R.id.viewer_close)
-        closeButton.setOnMenuItemClickListener {
-            changeMenuButtonsVisibility(isImageOpen = false)
-            bigImageView.removeAllViews()
-            bigImageView.setBackgroundColor(Color.TRANSPARENT)
-            return@setOnMenuItemClickListener true
-        }
     }
 
     private fun filterSubredditNameFromInvalidInput(subreddit: String): String =
@@ -160,9 +174,13 @@ class ViewerFragment : Fragment(), OnImageClickListener {
 
     override fun onImageClick(url: String) {
         changeMenuButtonsVisibility(isImageOpen = true)
+        openImageView(url)
+        if (searchButton.isActionViewExpanded) searchButton.collapseActionView()
+    }
+
+    private fun openImageView(url: String) {
         bigImageView.showImage(Uri.parse(url))
         bigImageView.setBackgroundColor(Color.BLACK)
-        if (searchButton.isActionViewExpanded) searchButton.collapseActionView()
     }
 
     private fun changeMenuButtonsVisibility(isImageOpen: Boolean) {
